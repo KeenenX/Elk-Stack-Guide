@@ -10,10 +10,6 @@ Based on the [official Docker images][elastic-docker] from Elastic:
 * [Logstash](https://github.com/elastic/logstash/tree/main/docker)
 * [Kibana](https://github.com/elastic/kibana/tree/main/src/dev/build/tasks/os_packages/docker_generator)
 
-Other available stack variants:
-
-* [`tls`](https://github.com/deviantony/docker-elk/tree/tls): TLS encryption enabled in Elasticsearch, Kibana (opt in),
-  and Fleet
 
 > [!IMPORTANT]
 > [Platinum][subscriptions] features are enabled by default for a [trial][license-mngmt] duration of **30 days**. After
@@ -27,13 +23,7 @@ Other available stack variants:
 
 ## Overview
 
-We aim at providing the simplest possible entry into the Elastic stack for anybody who feels like experimenting with
-this powerful combo of technologies. This project's default configuration is purposely minimal and unopinionated. It
-does not rely on any external dependency, and uses as little custom automation as necessary to get things up and
-running.
-
-Instead, we believe in good documentation so that you can use this repository as a template, tweak it, and make it _your
-own_. [sherifabdlnaby/elastdocker][elastdocker] is one example among others of project that builds upon this idea.
+The **ELK Stack** is a powerful set of tools—**Elasticsearch**, **Logstash**, and **Kibana**—used for searching, analyzing, and visualizing log data in real time. **Logstash** collects and processes incoming data from various sources, **Elasticsearch** stores and indexes that data for fast search, and **Kibana** provides a user-friendly dashboard to explore and visualize the results. Together, they help monitor systems, troubleshoot issues, and gain insights from large volumes of data.
 
 ---
 
@@ -41,10 +31,8 @@ own_. [sherifabdlnaby/elastdocker][elastdocker] is one example among others of p
 
 1. [Requirements](#requirements)
    * [Host setup](#host-setup)
-   * [Docker Desktop](#docker-desktop)
-     * [Windows](#windows)
-     * [macOS](#macos)
-1. [Usage](#usage)
+
+1. [Installation](#installation)
    * [Bringing up the stack](#bringing-up-the-stack)
    * [Initial setup](#initial-setup)
      * [Setting up user authentication](#setting-up-user-authentication)
@@ -72,75 +60,149 @@ own_. [sherifabdlnaby/elastdocker][elastdocker] is one example among others of p
 
 ### Host setup
 
-* [Docker Engine][docker-install] version **18.06.0** or newer
-* [Docker Compose][compose-install] version **2.0.0** or newer
-* 1.5 GB of RAM
+* [Install Elasticsearch](https://github.com/elastic/elasticsearch/tree/main/distribution/docker)
+* [Install Logstash](https://github.com/elastic/logstash/tree/main/docker)
+* [Install Kibana](https://github.com/elastic/kibana/tree/main/src/dev/build/tasks/os_packages/docker_generator)
 
 > [!NOTE]
-> Especially on Linux, make sure your user has the [required permissions][linux-postinstall] to interact with the Docker
-> daemon.
+> Any version of Elasticsearch below 7.0 (specifically Elasticsearch 6.x and earlier) requires you to manually install the JDK (Java Development Kit)
+> because it does not come bundled with Java.
 
-By default, the stack exposes the following ports:
+### Software Prerequisites
+* **PowerShell / Command Prompt:**
+     * For running `.bat` scripts and managing services.
+* **JDK (Optional)**
+     * Elasticsearch comes with a bundled JDK; no need to install unless custom configuration requires it.
+* **7-Zip or WinRAR**
+     * To extract `.zip` distributions of Elasticsearch, Kibana, and Logstash.
+* **Text Editor (Notepad++ / VS Code)**
+     * For editing `.yml` configuration files.
+* **Browser (Chrome / Firefox)**
+     * To access the Kibana dashboard (`http://localhost:5601`).
 
-* 5044: Logstash Beats input
-* 50000: Logstash TCP input
-* 9600: Logstash monitoring API
-* 9200: Elasticsearch HTTP
-* 9300: Elasticsearch TCP transport
-* 5601: Kibana
+#### By default, the stack exposes the following ports:
+
+* Elasticsearch: 9200 (HTTP), 9300 (Transport)
+* Kibana: 5601
+* Logstash (default): 5044 (or other custom Beats/inputs)
+
 
 > [!WARNING]
 > Elasticsearch's [bootstrap checks][bootstrap-checks] were purposely disabled to facilitate the setup of the Elastic
 > stack in development environments. For production setups, we recommend users to set up their host according to the
 > instructions from the Elasticsearch documentation: [Important System Configuration][es-sys-config].
 
-### Docker Desktop
 
-#### Windows
+## Installation
 
-If you are using the legacy Hyper-V mode of _Docker Desktop for Windows_, ensure that [File
-Sharing][desktop-filesharing] is enabled for the `C:` drive.
+> [!IMPORTANT]
+> Depending on the the configuration of your host/VM system you may come across errors throught the tutorial. If you come across any error messages throughtout the tutorial, copy the error message into chatGPT to troubleshoot the issue.
 
-#### macOS
+### Download Elasticsearch, Logstash, & Kibana
+* [Install Elasticsearch](https://github.com/elastic/elasticsearch/tree/main/distribution/docker)
+* [Install Logstash](https://github.com/elastic/logstash/tree/main/docker)
+* [Install Kibana](https://github.com/elastic/kibana/tree/main/src/dev/build/tasks/os_packages/docker_generator)
 
-The default configuration of _Docker Desktop for Mac_ allows mounting files from `/Users/`, `/Volume/`, `/private/`,
-`/tmp` and `/var/folders` exclusively. Make sure the repository is cloned in one of those locations or follow the
-instructions from the [documentation][desktop-filesharing] to add more locations.
-
-## Usage
-
-> [!WARNING]
-> You must rebuild the stack images with `docker compose build` whenever you switch branch or update the
-> [version](#version-selection) of an already existing stack.
-
-### Bringing up the stack
-
-Clone this repository onto the Docker host that will run the stack with the command below:
-
-```sh
-git clone https://github.com/deviantony/docker-elk.git
-```
-
-Then, initialize the Elasticsearch users and groups required by docker-elk by executing the command:
-
-```sh
-docker compose up setup
-```
-
-If everything went well and the setup completed without error, start the other stack components:
-
-```sh
-docker compose up
-```
 
 > [!NOTE]
-> You can also run all services in the background (detached mode) by appending the `-d` flag to the above command.
+> Java JDK comes bundled with these downloads for versions 7.0+ 
 
-Give Kibana about a minute to initialize, then access the Kibana web UI by opening <http://localhost:5601> in a web
+### Extract Files
+
+* Extract all 3 folders into a newly created folder called "Elk Stack" on your Local Disk C: drive
+
+```sh
+C:\ELK Stack
+```
+
+### Start Elastic Search
+
+* Open Command Prompt (Run as Administator)
+
+* **Navigate to the Elasticsearch** `bin` **folder:**
+Open the folder where you extracted Elasticsearch, go into the `bin` directory, and copy its path from the address bar. Then, in Command Prompt, type `cd` followed by the path you copied. It should look something like this:
+```sh
+cd C:\ELK Stack\elasticsearch-9.0.2\bin
+```
+* Start ElasticSearch: Copy and paste this into CMD
+```sh
+elasticsearch.bat
+```
+
+Give Elasticsearch about a minute to initialize, then access the Elasticsearch web UI by opening <http://localhost:9200> in a web
 browser and use the following (default) credentials to log in:
 
 * user: *elastic*
 * password: *changeme*
+
+If it doesn’t work, reopen Command Prompt, navigate to the Elasticsearch `bin` directory, and run the following command:
+```sh
+elasticsearch-reset-password -u elastic
+```
+### Start Kibana
+
+* Open Command Prompt (Run as Administator)
+
+* **Navigate to the Kibana** `bin` **folder:**
+Open the folder where you extracted Kibana, go into the `bin` directory, and copy its path from the address bar. Then, in Command Prompt, type `cd` followed by the path you copied. It should look something like this:
+```sh
+cd C:\ELK Stack\kibana-9.0.2\bin
+```
+* Start Kibana: Copy and paste this into CMD
+```sh
+Kibana.bat
+```
+Give Elasticsearch about a minute to initialize, then access the Elasticsearch web UI by opening <http://localhost:5601> in a web
+browser and use the following (default) credentials to log in:
+
+* user: *elastic*
+* password: *changeme* **(Or use the reset password generated)**
+
+
+## Start Logstash
+1. Open VS Code
+2. Create a file: *logstash.conf*
+3. Save file into Logstash folder
+4. Copy and Paste code below:
+```sh
+input {
+    stdin {}
+}
+
+output {
+    elasticsearch {
+        hosts => ["localhost:9200"] 
+        user => "elastic"
+        password => "changeme"
+        index => "indexforlogstash"
+    }
+
+}
+```
+> [!NOTE]
+> Your user and password could be different, input the correct credentials
+
+
+
+## Add Elasticsearch, Logstash, and Kibana into Windows Environmental Variables
+
+Overview:
+
+1. Right click Windows icon and open settings
+2. Use search bar to find *"Advanced System Settings"*.
+3. Select **Environment Varibles**
+4. Under System Varibles, double click on **Path**, select **New**, then add all 3 Bin directories for Elasticsearch, Logstash, & Kibana:
+```sh
+C:\ELK Stack\elasticsearch-9.0.2\bin
+```
+```sh
+C:\ELK Stack\kibana-9.0.2\bin
+```
+```sh
+C:\ELK Stack\logstash-9.0.2\bin
+```
+
+
 
 > [!NOTE]
 > Upon the initial startup, the `elastic`, `logstash_internal` and `kibana_system` Elasticsearch users are initialized
